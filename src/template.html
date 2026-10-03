@@ -6,9 +6,9 @@
 <title>France — Signaux d'alerte structurels</title>
 <style>
 :root{--page:#f4f4f1;--surf:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#6f6d67;--grid:#e1e0d9;--axis:#c3c2b7;--ring:rgba(11,11,11,.10);
---s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--crit:#d03b3b;--good:#0ca30c;--warn:#fab219;--glow:rgba(208,59,59,.10);--st-good:#0ca30c;--st-warn:#fab219;--st-serious:#ec835a;--st-crit:#d03b3b}
+--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--crit:#d03b3b;--good:#0ca30c;--warn:#fab219;--glow:rgba(208,59,59,.10);--st-good:#0ca30c;--st-warn:#fab219;--st-serious:#ec835a;--st-crit:#d03b3b}
 :root[data-theme=dark]{--page:#0d0d0d;--surf:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--axis:#383835;--ring:rgba(255,255,255,.10);
---s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--crit:#e66767;--glow:rgba(230,103,103,.14)}
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--crit:#e66767;--glow:rgba(230,103,103,.14)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--page);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
 header{padding:44px 6vw 28px;background:radial-gradient(900px 300px at 15% 0,var(--glow),transparent 70%)}
@@ -133,7 +133,7 @@ Sources : Eurostat (gov_10dd_edpt1, gov_10a_main, nama_10_gdp, nama_10_a10, demo
 const DATA=__DATA__;
 const $=s=>document.querySelector(s), tt=$('#tt');
 const NS='http://www.w3.org/2000/svg';
-const C={FR:'var(--s1)',DE:'var(--s2)',IT:'var(--s3)',EA20:'var(--s4)',EU27_2020:'var(--s4)',ES:'var(--s3)',SE:'var(--s3)'};
+const C={FR:'var(--s1)',DE:'var(--s2)',IT:'var(--s3)',EA20:'var(--s4)',EU27_2020:'var(--s4)',ES:'var(--s5)',SE:'var(--s5)'};
 const N={FR:'France',DE:'Allemagne',IT:'Italie',EA20:'Zone euro',EU27_2020:'UE27',ES:'Espagne',SE:'Suède'};
 const f1=v=>v.toLocaleString('fr-FR',{maximumFractionDigits:1,minimumFractionDigits:1});
 const f0=v=>Math.round(v).toLocaleString('fr-FR');
@@ -158,12 +158,15 @@ function line(el,{series,fmt=f1,unit='',ref,yMin,yMax,xTicks=6,h=240,area=false,
   xs.forEach(x=>g+=`<text x="${X(x)}" y="${H-4}" text-anchor="middle">${xfmt?xfmt(x):x}</text>`);
   if(lo<0&&hi>0)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--axis)"/>`;
   if(ref)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(ref.v)}" y2="${Y(ref.v)}" stroke="var(--crit)" stroke-dasharray="5 4" stroke-width="1.5"/><text class="lab" x="${m.l+4}" y="${Y(ref.v)-5}" style="fill:var(--crit)">${ref.label}</text>`;
+  const ends=[];
   series.forEach((s,i)=>{
     const d=s.data.map((p,j)=>`${j?'L':'M'}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join('');
     if(area&&i===0)g+=`<path d="${d}L${X(s.data.at(-1)[0])},${Y(Math.max(lo,0))}L${X(s.data[0][0])},${Y(Math.max(lo,0))}Z" fill="${s.color}" opacity=".16"/>`;
     g+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.bold?3:2}" stroke-linejoin="round" stroke-linecap="round"/>`;
-    const e=s.data.at(-1);g+=`<circle cx="${X(e[0])}" cy="${Y(e[1])}" r="4" fill="${s.color}" stroke="var(--surf)" stroke-width="2"/><text class="lab" x="${X(e[0])+8}" y="${Y(e[1])+4}">${fmt(e[1])}</text>`;
+    const e=s.data.at(-1);g+=`<circle cx="${X(e[0])}" cy="${Y(e[1])}" r="4" fill="${s.color}" stroke="var(--surf)" stroke-width="2"/>`;ends.push([X(e[0])+8,Y(e[1])+4,fmt(e[1])]);
   });
+  ends.sort((a,b)=>a[1]-b[1]);for(let i=1;i<ends.length;i++)if(ends[i][1]-ends[i-1][1]<13)ends[i][1]=ends[i-1][1]+13;
+  ends.forEach(([x,y,t])=>g+=`<text class="lab" x="${x}" y="${y}">${t}</text>`);
   g+=`<line id="xh" y1="${m.t}" y2="${H-m.b}" stroke="var(--axis)" style="display:none"/><rect class="hit" x="${m.l}" y="0" width="${W-m.l-m.r}" height="${H}" fill="transparent"/>`;
   const box=el.querySelector('.plot');box.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
   const svg=box.querySelector('svg'),xh=svg.querySelector('#xh');
@@ -176,6 +179,14 @@ function line(el,{series,fmt=f1,unit='',ref,yMin,yMax,xTicks=6,h=240,area=false,
     tt.style.display='block';tt.style.left=Math.min(ev.clientX+14,innerWidth-190)+'px';tt.style.top=ev.clientY+14+'px';});
   svg.querySelector('.hit').addEventListener('mouseleave',()=>{tt.style.display='none';xh.style.display='none'});
 }
+function dual(el,views){
+  const bar=document.createElement('div');bar.className='tabs';bar.innerHTML=views.map((v,i)=>`<button aria-pressed="${i===0}">${v[0]}</button>`).join('');
+  el.querySelector('.s').after(bar);
+  const show=i=>{[...bar.children].forEach((b,j)=>b.setAttribute('aria-pressed',String(j===i)));el.querySelector('.leg').innerHTML='';el.querySelectorAll('details').forEach(d=>d.remove());views[i][1](el)};
+  [...bar.children].forEach((b,i)=>b.onclick=()=>show(i));show(0);
+}
+function histTable(el,D,key,gs,tf){const yrs=Object.keys(D[key][gs[0]]).sort().filter((_,i,a)=>i%Math.ceil(a.length/8)===0||i===a.length-1);
+  table(el,gs.map(g=>N[g]),yrs.map(y=>[y,...gs.map(g=>D[key][g]?.[y]!=null?f1(D[key][g][y]):'–')]))}
 function niceStep(r){const p=10**Math.floor(Math.log10(r)),n=r/p;return (n<1.5?1:n<3?2:n<7?5:10)*p}
 
 function bars(el,{items,fmt=f1,unit='',max,ref,hl='FR'}){ // horizontal bars
@@ -241,9 +252,11 @@ function render(D){
   const tr={};['FR','DE','IT'].forEach(g=>tr[g]=ser(D.exports[g]).map(([x,v])=>[x,(v-D.imports[g][Math.round(x)])/1000]));
   legend(el,['FR','DE','IT'].map(g=>[N[g],C[g]]));line(el,{series:['FR','DE','IT'].map(g=>({name:N[g],color:C[g],bold:g==='FR',data:tr[g]})),fmt:v=>f0(v),unit:' Md€',xTicks:5});
 
-  el=card('#c-exp','Dépenses &amp; recettes publiques','% du PIB · dernière année disponible (la France finance l\'écart par la dette)','Eurostat gov_10a_main',true);
-  const gy=['FR','IT','DE','EA20'];legend(el,[['Dépenses','var(--s1)'],['Recettes','var(--s3)']]);
-  groupBars(el,gy.map(g=>({n:N[g],a:last(D.exp[g])[1],b:last(D.rev[g])[1],k:g})));
+  el=card('#c-exp','Dépenses &amp; recettes publiques','% du PIB · classement de la dernière année ou historique des dépenses','Eurostat gov_10a_main',true);
+  const gy=['FR','IT','DE','EA20'];
+  dual(el,[['Dernière année',el=>{legend(el,[['Dépenses','var(--s1)'],['Recettes','var(--s3)']]);groupBars(el,gy.map(g=>({n:N[g],a:last(D.exp[g])[1],b:last(D.rev[g])[1],k:g})))}],
+   ['Historique',el=>{const hg=['FR','IT','DE','EA20'];legend(el,hg.map(g=>[N[g],C[g]]));
+     line(el,{series:hg.map(g=>({name:N[g],color:C[g],bold:g==='FR',data:ser(D.exp[g])})),unit:' % du PIB',xTicks:5});histTable(el,D,'exp',hg)}]]);
 
   el=card('#c-fail','Défaillances d\'entreprises','milliers, cumul 12 mois · Banque de France (valeurs de référence)','Banque de France / Altares (ordres de grandeur)',false);
   columns(el,{data:[['2015',62],['2016',58],['2017',54],['2018',52],['2019',51],['2020',31],['2021',28],['2022',36],['2023',55],['2024',67],['2025',68]],fmt:f0,unit:' k'});
@@ -252,10 +265,14 @@ function render(D){
   const fg=['FR','DE','IT','EU27_2020'];legend(el,fg.map(g=>[N[g],C[g]]));
   line(el,{series:fg.map(g=>({name:N[g],color:C[g],bold:g==='FR',data:ser(D.fert[g])})),fmt:v=>f1(v),ref:{v:2.1,label:'Renouvellement 2,1'},xTicks:5,yMin:1});
 
-  el=card('#c-youth','Chômage des 15-24 ans','% de la population active · dernière année','Eurostat une_rt_a',true);
-  bars(el,{items:['ES','IT','FR','EU27_2020','DE'].map(g=>({k:g,n:N[g],v:last(D.youth[g])[1],c:g==='FR'?'var(--s1)':'var(--axis)'})),unit:' %'});
-  el=card('#c-emp','Taux d\'emploi des 55-64 ans','% de la population · dernière année','Eurostat lfsi_emp_a',true);
-  bars(el,{items:['SE','DE','EU27_2020','FR','IT'].map(g=>({k:g,n:N[g],v:last(D.emp5564[g])[1],c:g==='FR'?'var(--s1)':'var(--axis)'})),unit:' %',max:100});
+  el=card('#c-youth','Chômage des 15-24 ans','% de la population active · classement de la dernière année ou historique','Eurostat une_rt_a',true);
+  const yg=['ES','IT','FR','EU27_2020','DE'];
+  dual(el,[['Dernière année',el=>bars(el,{items:yg.map(g=>({k:g,n:N[g],v:last(D.youth[g])[1],c:g==='FR'?'var(--s1)':'var(--axis)'})),unit:' %'})],
+   ['Historique',el=>{legend(el,yg.map(g=>[N[g],C[g]]));line(el,{series:yg.map(g=>({name:N[g],color:C[g],bold:g==='FR',data:ser(D.youth[g])})),unit:' %',xTicks:5,yMin:0});histTable(el,D,'youth',yg)}]]);
+  el=card('#c-emp','Taux d\'emploi des 55-64 ans','% de la population · classement de la dernière année ou historique','Eurostat lfsi_emp_a',true);
+  const eg=['SE','DE','EU27_2020','FR','IT'];
+  dual(el,[['Dernière année',el=>bars(el,{items:eg.map(g=>({k:g,n:N[g],v:last(D.emp5564[g])[1],c:g==='FR'?'var(--s1)':'var(--axis)'})),unit:' %',max:100})],
+   ['Historique',el=>{legend(el,eg.map(g=>[N[g],C[g]]));line(el,{series:eg.map(g=>({name:N[g],color:C[g],bold:g==='FR',data:ser(D.emp5564[g])})),unit:' %',xTicks:5});histTable(el,D,'emp5564',eg)}]]);
 
   el=card('#c-ratio','Ratio cotisants / retraités','nombre de cotisants pour un retraité · COR (valeurs de référence)','COR — rapports annuels',false);
   columns(el,{data:[['1960',4.0],['1990',2.2],['2000',2.0],['2023',1.7],['2050',1.4],['2070',1.3]],fmt:v=>f1(v).replace('.',','),hlLast:false,color:'var(--s1)',h:200});
@@ -311,7 +328,7 @@ function renderIndex(D){
    <div class="hchart"><h3>Évolution de l'indice</h3><div class="s" id="hs"></div>
    <div class="tabs">${TABS.map(t=>`<button data-t="${t[0]}" aria-pressed="${t[0]===state.tab}">${t[1]}</button>`).join('')}</div><div class="plot"></div></div>`;
   $('#hs').textContent=daily?`Quotidien · pilier marché = tension souveraine zone euro (BCE) · valeur au ${dFmt(cur.t,true)}. Les 3 autres piliers sont annuels (constants sur la fenêtre).`:`Mensuel · pilier marché = spread OAT/Bund · piliers annuels maintenus dans l'année · valeur de ${mFmt(cur.t,true)}.`;
-  document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{state.tab=b.dataset.t;renderIndex(D)});
+  document.querySelectorAll('#hero .tabs button').forEach(b=>b.onclick=()=>{state.tab=b.dataset.t;renderIndex(D)});
   const lo=Math.min(...src.map(d=>d.idx)),hi=Math.max(...src.map(d=>d.idx));
   line($('#hero .hchart'),{series:[{name:'Indice',color:'var(--s1)',bold:true,data:src.map(d=>[d.t,d.idx])}],fmt:f0,unit:' / 100',area:false,h:250,
     yMin:Math.max(0,Math.floor((lo-5)/5)*5),yMax:Math.min(100,Math.ceil((hi+5)/5)*5),xTicks:state.tab==='30j'?5:6,

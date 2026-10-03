@@ -1,6 +1,6 @@
 {
   "name": "france-alert-dashboard",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Tableau de bord des vulnérabilités structurelles de la France (Eurostat, BCE, données ouvertes)",
   "type": "module",
   "license": "MIT",

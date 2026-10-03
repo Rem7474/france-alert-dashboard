@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+- Chômage des jeunes, emploi des 55-64 ans, dépenses publiques : basculement « Dernière année » / « Historique » avec comparaison entre pays.
+- Étiquettes de fin de courbe décalées pour ne plus se chevaucher.
+
 ## 1.1.0
 - Indice de vulnérabilité composite (0-100), 4 piliers à poids modifiables.
 - Suivi quotidien (30 j, 90 j, 1 an) et mensuel (5 ans, depuis 2005), variations à 30 j, 90 j et 1 an.
