@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>France — Signaux d'alerte structurels</title>
+<style>
+:root{--page:#f4f4f1;--surf:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#6f6d67;--grid:#e1e0d9;--axis:#c3c2b7;--ring:rgba(11,11,11,.10);
+--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--crit:#d03b3b;--good:#0ca30c;--warn:#fab219;--glow:rgba(208,59,59,.10)}
+:root[data-theme=dark]{--page:#0d0d0d;--surf:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--axis:#383835;--ring:rgba(255,255,255,.10);
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--crit:#e66767;--glow:rgba(230,103,103,.14)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:44px 6vw 28px;background:radial-gradient(900px 300px at 15% 0,var(--glow),transparent 70%)}
+.eyebrow{letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--crit);font-weight:700}
+h1{font-size:clamp(30px,5vw,54px);line-height:1.05;margin:8px 0 10px;max-width:18ch}
+.lede{color:var(--ink2);max-width:70ch;margin:0}
+.bar{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+button{background:var(--surf);color:var(--ink);border:1px solid var(--ring);border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit;font-size:13px}
+button:hover{border-color:var(--axis)}
+main{padding:0 6vw 60px;max-width:1500px;margin:auto}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:8px 0 34px}
+.kpi{background:var(--surf);border:1px solid var(--ring);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden}
+.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--crit)}
+.kpi .l{font-size:12px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em}
+.kpi .v{font-size:clamp(34px,4vw,50px);font-weight:750;line-height:1.05;margin:6px 0 2px}
+.kpi .v small{display:block;font-size:.34em;font-weight:600;color:var(--ink2);margin-top:2px}
+.kpi .d{font-size:13px;color:var(--ink2)}
+.kpi .d b{color:var(--crit)}
+h2{font-size:22px;margin:40px 0 4px;display:flex;gap:10px;align-items:center}
+h2 span{font-size:12px;background:var(--crit);color:#fff;border-radius:6px;padding:2px 8px;font-weight:700}
+.sub{color:var(--muted);margin:0 0 14px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px}
+.card{background:var(--surf);border:1px solid var(--ring);border-radius:14px;padding:18px 18px 12px;min-width:0}
+.card h3{margin:0;font-size:15px}
+.card .s{color:var(--muted);font-size:12px;margin:2px 0 8px}
+.card .src{color:var(--muted);font-size:11px;margin-top:6px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.tag{border:1px solid var(--ring);border-radius:5px;padding:0 6px;font-size:10.5px}
+.tag.live{color:var(--good);border-color:var(--good)} .tag.ref{color:var(--warn)}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-bottom:4px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+svg{width:100%;height:auto;display:block;overflow:visible}
+svg text{fill:var(--muted);font-size:11px;font-family:inherit}
+svg .lab{fill:var(--ink2);font-size:12px}
+.tt{position:fixed;pointer-events:none;background:var(--surf);border:1px solid var(--axis);border-radius:8px;padding:8px 10px;font-size:12px;box-shadow:0 6px 24px rgba(0,0,0,.35);display:none;z-index:9;min-width:120px}
+.tt b{display:block;margin-bottom:3px}.tt div{display:flex;justify-content:space-between;gap:14px;color:var(--ink2)}.tt i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.tile{background:var(--surf);border:1px solid var(--ring);border-radius:14px;padding:16px 18px}
+.tile .v{font-size:36px;font-weight:750;line-height:1.1}.tile .l{color:var(--ink2);font-size:13px}.tile .src{font-size:11px;color:var(--muted);margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:12px}td,th{padding:3px 6px;text-align:right;border-bottom:1px solid var(--grid)}th:first-child,td:first-child{text-align:left}
+details{margin-top:6px;font-size:12px;color:var(--ink2)} summary{cursor:pointer}
+footer{padding:30px 6vw;color:var(--muted);font-size:12px;border-top:1px solid var(--grid)}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Tableau de bord · Vulnérabilités structurelles</div>
+  <h1>France : les signaux d'alerte, en chiffres officiels</h1>
+  <p class="lede">Finances publiques, compétitivité, démographie, services publics, logement. Données Eurostat et BCE récupérées via leurs API ouvertes, complétées de valeurs de référence signalées comme telles.</p>
+  <div class="bar"><span id="stamp"></span><button id="refresh">↻ Actualiser en direct (Eurostat + BCE)</button><button id="theme">◐ Thème</button></div>
+</header>
+<main>
+<section class="kpis" id="kpis"></section>
+
+<h2><span>1</span> Finances publiques &amp; risque de dette</h2>
+<p class="sub">Pourcentages du PIB, comparaison zone euro et pays voisins.</p>
+<div class="grid">
+  <div class="card" id="c-debt"></div>
+  <div class="card" id="c-def"></div>
+  <div class="card" id="c-int"></div>
+  <div class="card" id="c-spread"></div>
+</div>
+
+<h2><span>2</span> Économie réelle &amp; compétitivité</h2>
+<p class="sub">Désindustrialisation, déficit extérieur, poids de la dépense publique, santé des entreprises.</p>
+<div class="grid">
+  <div class="card" id="c-manuf"></div>
+  <div class="card" id="c-trade"></div>
+  <div class="card" id="c-exp"></div>
+  <div class="card" id="c-fail"></div>
+</div>
+
+<h2><span>3</span> Démographie &amp; marché du travail</h2>
+<p class="sub">Fécondité sous le seuil de renouvellement, deux fragilités de l'emploi.</p>
+<div class="grid">
+  <div class="card" id="c-fert"></div>
+  <div class="card" id="c-youth"></div>
+  <div class="card" id="c-emp"></div>
+  <div class="card" id="c-ratio"></div>
+</div>
+
+<h2><span>4</span> Services publics</h2>
+<p class="sub">Éducation, santé, justice.</p>
+<div class="grid">
+  <div class="card" id="c-pisa"></div>
+  <div class="tiles" id="t-serv" style="align-content:start"></div>
+</div>
+
+<h2><span>5</span> Logement &amp; précarité</h2>
+<div class="grid">
+  <div class="card" id="c-house"></div>
+  <div class="tiles" id="t-house" style="align-content:start"></div>
+</div>
+</main>
+<footer>
+Sources : Eurostat (gov_10dd_edpt1, gov_10a_main, nama_10_gdp, nama_10_a10, demo_find, une_rt_a, lfsi_emp_a), BCE (IRS, taux long terme de convergence 10 ans), OCDE PISA, COR, Banque de France, SDES, Drees. Les cartes étiquetées « réf. » reposent sur des valeurs de référence saisies à la main (ordres de grandeur) : à rafraîchir depuis Webstat, Sitadel, data.gouv.fr (nécessitent clé ou export).
+</footer>
+<div class="tt" id="tt"></div>
+<script>
+const DATA=__DATA__;
+const $=s=>document.querySelector(s), tt=$('#tt');
+const NS='http://www.w3.org/2000/svg';
+const C={FR:'var(--s1)',DE:'var(--s2)',IT:'var(--s3)',EA20:'var(--s4)',EU27_2020:'var(--s4)',ES:'var(--s3)',SE:'var(--s3)'};
+const N={FR:'France',DE:'Allemagne',IT:'Italie',EA20:'Zone euro',EU27_2020:'UE27',ES:'Espagne',SE:'Suède'};
+const f1=v=>v.toLocaleString('fr-FR',{maximumFractionDigits:1,minimumFractionDigits:1});
+const f0=v=>Math.round(v).toLocaleString('fr-FR');
+const last=o=>{const k=Object.keys(o).sort().at(-1);return [k,o[k]]};
+const ser=(o,fn=v=>v)=>Object.entries(o).filter(([k,v])=>v!=null).sort().map(([k,v])=>[+k.slice(0,4)+(k.length>4?(+k.slice(5,7)-1)/12:0),fn(v,k)]);
+
+function card(id,title,sub,src,live){
+  const el=$(id);el.innerHTML=`<h3>${title}</h3><div class="s">${sub}</div><div class="leg"></div><div class="plot"></div><div class="src"><span>${src}</span><span class="tag ${live?'live':'ref'}">${live?'données API':'réf.'}</span></div>`;return el;}
+function legend(el,items){el.querySelector('.leg').innerHTML=items.map(([n,c])=>`<span><i style="background:${c}"></i>${n}</span>`).join('')}
+function table(el,cols,rows){el.insertAdjacentHTML('beforeend',`<details><summary>Voir le tableau</summary><table><tr><th></th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>${rows.map(r=>`<tr><td>${r[0]}</td>${r.slice(1).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</table></details>`)}
+
+function line(el,{series,fmt=f1,unit='',ref,yMin,yMax,xTicks=6,h=240,area=false}){
+  const W=560,H=h,m={l:44,r:56,t:10,b:22};
+  const all=series.flatMap(s=>s.data);let x0=Math.min(...all.map(d=>d[0])),x1=Math.max(...all.map(d=>d[0]));
+  let lo=Math.min(...all.map(d=>d[1]),ref?ref.v:Infinity),hi=Math.max(...all.map(d=>d[1]),ref?ref.v:-Infinity);
+  if(yMin!=null)lo=Math.min(lo,yMin);if(yMax!=null)hi=Math.max(hi,yMax);
+  const pad=(hi-lo)*.08;lo-=lo===yMin?0:pad;hi+=pad;
+  const X=x=>m.l+(x-x0)/(x1-x0||1)*(W-m.l-m.r),Y=y=>H-m.b-(y-lo)/(hi-lo)*(H-m.t-m.b);
+  let g='';const step=niceStep((hi-lo)/4);
+  for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step){g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${fmt(v)}</text>`}
+  const xs=[];for(let i=0;i<=xTicks;i++)xs.push(Math.floor(x0+(x1-x0)*i/xTicks));
+  xs.forEach(x=>g+=`<text x="${X(x)}" y="${H-4}" text-anchor="middle">${x}</text>`);
+  if(lo<0&&hi>0)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--axis)"/>`;
+  if(ref)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(ref.v)}" y2="${Y(ref.v)}" stroke="var(--crit)" stroke-dasharray="5 4" stroke-width="1.5"/><text class="lab" x="${m.l+4}" y="${Y(ref.v)-5}" style="fill:var(--crit)">${ref.label}</text>`;
+  series.forEach((s,i)=>{
+    const d=s.data.map((p,j)=>`${j?'L':'M'}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join('');
+    if(area&&i===0)g+=`<path d="${d}L${X(s.data.at(-1)[0])},${Y(Math.max(lo,0))}L${X(s.data[0][0])},${Y(Math.max(lo,0))}Z" fill="${s.color}" opacity=".16"/>`;
+    g+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.bold?3:2}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const e=s.data.at(-1);g+=`<circle cx="${X(e[0])}" cy="${Y(e[1])}" r="4" fill="${s.color}" stroke="var(--surf)" stroke-width="2"/><text class="lab" x="${X(e[0])+8}" y="${Y(e[1])+4}">${fmt(e[1])}</text>`;
+  });
+  g+=`<line id="xh" y1="${m.t}" y2="${H-m.b}" stroke="var(--axis)" style="display:none"/><rect class="hit" x="${m.l}" y="0" width="${W-m.l-m.r}" height="${H}" fill="transparent"/>`;
+  const box=el.querySelector('.plot');box.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+  const svg=box.querySelector('svg'),xh=svg.querySelector('#xh');
+  svg.querySelector('.hit').addEventListener('mousemove',ev=>{
+    const r=svg.getBoundingClientRect(),px=(ev.clientX-r.left)/r.width*W;const xv=x0+(px-m.l)/(W-m.l-m.r)*(x1-x0);
+    let best=null;const rows=[];series.forEach(s=>{const p=s.data.reduce((a,b)=>Math.abs(b[0]-xv)<Math.abs(a[0]-xv)?b:a);if(!best||Math.abs(p[0]-xv)<Math.abs(best-xv))best=p[0];rows.push([s,p])});
+    xh.setAttribute('x1',X(best));xh.setAttribute('x2',X(best));xh.style.display='';
+    const lab=best%1?`${Math.floor(best)}-${String(Math.round((best%1)*12)+1).padStart(2,'0')}`:Math.round(best);
+    tt.innerHTML=`<b>${lab}</b>`+rows.filter(([s,p])=>Math.abs(p[0]-best)<1.2).map(([s,p])=>`<div><span><i style="background:${s.color}"></i>${s.name}</span><span>${fmt(p[1])}${unit}</span></div>`).join('');
+    tt.style.display='block';tt.style.left=Math.min(ev.clientX+14,innerWidth-190)+'px';tt.style.top=ev.clientY+14+'px';});
+  svg.querySelector('.hit').addEventListener('mouseleave',()=>{tt.style.display='none';xh.style.display='none'});
+}
+function niceStep(r){const p=10**Math.floor(Math.log10(r)),n=r/p;return (n<1.5?1:n<3?2:n<7?5:10)*p}
+
+function bars(el,{items,fmt=f1,unit='',max,ref,hl='FR'}){ // horizontal bars
+  const W=560,rh=34,H=items.length*rh+8,m={l:96,r:60};const mx=max||Math.max(...items.map(d=>d.v),ref?ref.v:0)*1.08;
+  const X=v=>m.l+v/mx*(W-m.l-m.r);let g='';
+  items.forEach((d,i)=>{const y=i*rh+4;g+=`<text class="lab" x="${m.l-8}" y="${y+rh/2+1}" text-anchor="end" style="${d.k===hl?'fill:var(--ink);font-weight:700':''}">${d.n}</text>
+   <path d="M${m.l},${y+5}H${X(d.v)-4}a4,4 0 0 1 4,4v${rh-20}a4,4 0 0 1 -4,4H${m.l}Z" fill="${d.c}" ${d.k===hl?'':'opacity=".78"'} data-i="${i}"/>
+   <text x="${X(d.v)+6}" y="${y+rh/2+4}" style="fill:var(--ink);font-weight:${d.k===hl?700:500}">${fmt(d.v)}${unit}</text>`});
+  if(ref)g+=`<line x1="${X(ref.v)}" x2="${X(ref.v)}" y1="0" y2="${H}" stroke="var(--crit)" stroke-dasharray="5 4"/><text x="${X(ref.v)+4}" y="${H-2}" style="fill:var(--crit)">${ref.label}</text>`;
+  const box=el.querySelector('.plot');box.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+  box.querySelectorAll('path[data-i]').forEach(p=>{const d=items[+p.dataset.i];
+    p.addEventListener('mousemove',ev=>{tt.innerHTML=`<b>${d.n}</b><div><span>${fmt(d.v)}${unit}</span></div>`;tt.style.display='block';tt.style.left=ev.clientX+14+'px';tt.style.top=ev.clientY+14+'px'});
+    p.addEventListener('mouseleave',()=>tt.style.display='none')});
+}
+function columns(el,{data,fmt=f0,unit='',h=230,hlLast=true,color='var(--s1)',hot='var(--crit)',ref}){ // vertical bars [label,value]
+  const W=560,H=h,m={l:46,r:8,t:16,b:22};const hi=Math.max(...data.map(d=>d[1]))*1.12,lo=Math.min(0,...data.map(d=>d[1]));
+  const Y=v=>H-m.b-(v-lo)/(hi-lo)*(H-m.t-m.b);const bw=(W-m.l-m.r)/data.length;let g='';const step=niceStep((hi-lo)/4);
+  for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${fmt(v)}</text>`;
+  data.forEach((d,i)=>{const x=m.l+i*bw+bw*.16,w=bw*.68,y0=Y(Math.max(d[1],0)),y1=Y(Math.min(d[1],0));const isL=hlLast&&i===data.length-1;
+    g+=`<path d="M${x},${y1}V${y0+3}a3,3 0 0 1 3,-3h${w-6}a3,3 0 0 1 3,3V${y1}Z" fill="${d[2]||(isL?hot:color)}" data-i="${i}" ${isL?'':'opacity=".85"'}/>`;
+    if(data.length<=14||i%2===0)g+=`<text x="${x+w/2}" y="${H-5}" text-anchor="middle">${d[0]}</text>`;
+    if(isL)g+=`<text x="${x+w/2}" y="${y0-5}" text-anchor="middle" style="fill:var(--ink);font-weight:700">${fmt(d[1])}</text>`});
+  if(ref)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(ref.v)}" y2="${Y(ref.v)}" stroke="var(--crit)" stroke-dasharray="5 4"/><text x="${m.l+4}" y="${Y(ref.v)-4}" style="fill:var(--crit)">${ref.label}</text>`;
+  const box=el.querySelector('.plot');box.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+  box.querySelectorAll('path[data-i]').forEach(p=>{const d=data[+p.dataset.i];p.addEventListener('mousemove',ev=>{tt.innerHTML=`<b>${d[0]}</b><div><span>${fmt(d[1])}${unit}</span></div>`;tt.style.display='block';tt.style.left=ev.clientX+14+'px';tt.style.top=ev.clientY+14+'px'});p.addEventListener('mouseleave',()=>tt.style.display='none')});
+}
+
+function render(D){
+  const [yD,vD]=last(D.debt.FR),[,vDe]=last(D.def.FR),[yI,vI]=last(D.interest.FR);
+  const eaD=last(D.debt.EA20)[1],eaDe=last(D.def.EA20)[1];
+  const yFR=D.yFR,yDE=D.yDE;const km=Object.keys(yFR).filter(k=>yDE[k]!=null).sort();const sp=km.map(k=>[k,yFR[k]-yDE[k]]);const [kS,vS]=sp.at(-1);
+  const [,vF]=last(D.fert.FR);
+  $('#kpis').innerHTML=[
+   ['Dette publique',f1(vD),'% du PIB',`<b>${f0(last(D.debtEur.FR)[1]/1000)} Md€</b> · zone euro ${f1(eaD)} % (${yD})`],
+   ['Déficit public',f1(-vDe),'% du PIB',`<b>${f1(-vDe-3)} pt</b> au-dessus du seuil de 3 % · zone euro ${f1(-eaDe)} %`],
+   ['Charge d\'intérêts',f0(vI/1000),'Md€ / an',`<b>≈ ${f0(vI/1000/64*100)} %</b> du budget Éducation nationale (≈64 Md€) · ${yI}`],
+   ['Spread OAT / Bund',f0((vS)*100),'pb',`Taux 10 ans FR ${f1(yFR[kS])} % · DE ${f1(yDE[kS])} % (${kS})`],
+   ['Fécondité',f1(vF),'enfant/femme',`<b>Seuil de renouvellement : 2,1</b> · Italie ${last(D.fert.IT)[1]}`],
+  ].map(([l,v,u,d])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}<small>${u}</small></div><div class="d">${d}</div></div>`).join('');
+
+  const geos=['FR','DE','IT','EA20'];
+  const multi=(id,title,sub,src,key,opts={})=>{const el=card(id,title,sub,src,true);const gs=opts.geos||geos;
+    legend(el,gs.map(g=>[N[g],C[g]]));
+    line(el,{series:gs.map(g=>({name:N[g],color:C[g],bold:g==='FR',data:ser(D[key][g],opts.tf)})),...opts});
+    const yrs=Object.keys(D[key].FR).sort().filter((_,i,a)=>i%Math.ceil(a.length/8)===0||i===a.length-1);
+    table(el,gs.map(g=>N[g]),yrs.map(y=>[y,...gs.map(g=>D[key][g]?.[y]!=null?(opts.tf?opts.tf(D[key][g][y]):D[key][g][y]).toFixed(1):'–')]));};
+  multi('#c-debt','Dette publique brute','% du PIB · France vs voisins · seuil Maastricht 60 %','Eurostat gov_10dd_edpt1','debt',{unit:' %',ref:{v:60,label:'Seuil 60 %'},xTicks:5});
+  multi('#c-def','Déficit public','% du PIB · seuil 3 %','Eurostat gov_10dd_edpt1','def',{unit:' %',ref:{v:-3,label:'Seuil -3 %'},xTicks:5});
+
+  let el=card('#c-int','Charge de la dette (intérêts versés)','Md€ par an, administrations publiques · repères : Éducation ≈ 64 Md€, Défense ≈ 50 Md€ (budget 2025)','Eurostat gov_10a_main D41PAY',true);
+  const iv=ser(D.interest.FR).filter(d=>d[0]>=2005).map(d=>[String(d[0]),d[1]/1000]);
+  columns(el,{data:iv,fmt:v=>f0(v),unit:' Md€',ref:{v:64,label:'Éducation nationale ≈ 64'}});
+  table(el,['Md€'],iv.slice(-8).map(d=>[d[0],f1(d[1])]));
+
+  el=card('#c-spread','Spread OAT / Bund 10 ans','points de base · taux de convergence BCE (FR − DE), mensuel','BCE IRS (taux long terme 10 ans)',true);
+  line(el,{series:[{name:'Spread FR−DE',color:'var(--s1)',bold:true,data:sp.filter(d=>d[0]>='2008').map(([k,v])=>[+k.slice(0,4)+(+k.slice(5,7)-1)/12,v*100])}],fmt:v=>f0(v),unit:' pb',area:true,xTicks:6});
+
+  el=card('#c-manuf','Poids de l\'industrie manufacturière','% de la valeur ajoutée totale','Eurostat nama_10_a10 (NACE C / total)',true);
+  const mk={};['FR','DE','IT'].forEach(g=>{mk[g]=ser(D.manuf[g]).map(([x,v])=>[x,v/ (D.vaTot[g][Math.round(x)]) *100])});
+  legend(el,['FR','DE','IT'].map(g=>[N[g],C[g]]));line(el,{series:['FR','DE','IT'].map(g=>({name:N[g],color:C[g],bold:g==='FR',data:mk[g]})),unit:' %',xTicks:5,yMin:0});
+
+  el=card('#c-trade','Solde extérieur biens &amp; services','Md€ courants (exportations − importations, comptes nationaux)','Eurostat nama_10_gdp P6 − P7',true);
+  const tr={};['FR','DE','IT'].forEach(g=>tr[g]=ser(D.exports[g]).map(([x,v])=>[x,(v-D.imports[g][Math.round(x)])/1000]));
+  legend(el,['FR','DE','IT'].map(g=>[N[g],C[g]]));line(el,{series:['FR','DE','IT'].map(g=>({name:N[g],color:C[g],bold:g==='FR',data:tr[g]})),fmt:v=>f0(v),unit:' Md€',xTicks:5});
+
+  el=card('#c-exp','Dépenses &amp; recettes publiques','% du PIB · dernière année disponible (la France finance l\'écart par la dette)','Eurostat gov_10a_main',true);
+  const gy=['FR','IT','DE','EA20'];legend(el,[['Dépenses','var(--s1)'],['Recettes','var(--s3)']]);
+  groupBars(el,gy.map(g=>({n:N[g],a:last(D.exp[g])[1],b:last(D.rev[g])[1],k:g})));
+
+  el=card('#c-fail','Défaillances d\'entreprises','milliers, cumul 12 mois · Banque de France (valeurs de référence)','Banque de France / Altares (ordres de grandeur)',false);
+  columns(el,{data:[['2015',62],['2016',58],['2017',54],['2018',52],['2019',51],['2020',31],['2021',28],['2022',36],['2023',55],['2024',67],['2025',68]],fmt:f0,unit:' k'});
+
+  el=card('#c-fert','Indicateur conjoncturel de fécondité','enfants par femme · seuil de renouvellement 2,1','Eurostat demo_find',true);
+  const fg=['FR','DE','IT','EU27_2020'];legend(el,fg.map(g=>[N[g],C[g]]));
+  line(el,{series:fg.map(g=>({name:N[g],color:C[g],bold:g==='FR',data:ser(D.fert[g])})),fmt:v=>f1(v),ref:{v:2.1,label:'Renouvellement 2,1'},xTicks:5,yMin:1});
+
+  el=card('#c-youth','Chômage des 15-24 ans','% de la population active · dernière année','Eurostat une_rt_a',true);
+  bars(el,{items:['ES','IT','FR','EU27_2020','DE'].map(g=>({k:g,n:N[g],v:last(D.youth[g])[1],c:g==='FR'?'var(--s1)':'var(--axis)'})),unit:' %'});
+  el=card('#c-emp','Taux d\'emploi des 55-64 ans','% de la population · dernière année','Eurostat lfsi_emp_a',true);
+  bars(el,{items:['SE','DE','EU27_2020','FR','IT'].map(g=>({k:g,n:N[g],v:last(D.emp5564[g])[1],c:g==='FR'?'var(--s1)':'var(--axis)'})),unit:' %',max:100});
+
+  el=card('#c-ratio','Ratio cotisants / retraités','nombre de cotisants pour un retraité · COR (valeurs de référence)','COR — rapports annuels',false);
+  columns(el,{data:[['1960',4.0],['1990',2.2],['2000',2.0],['2023',1.7],['2050',1.4],['2070',1.3]],fmt:v=>f1(v).replace('.',','),hlLast:false,color:'var(--s1)',h:200});
+
+  el=card('#c-pisa','PISA — mathématiques','score moyen · France vs moyenne OCDE','OCDE PISA 2000-2022',false);
+  legend(el,[['France','var(--s1)'],['Moyenne OCDE','var(--s2)']]);
+  line(el,{series:[{name:'France',color:'var(--s1)',bold:true,data:[[2003,511],[2006,496],[2009,497],[2012,495],[2015,493],[2018,495],[2022,474]]},{name:'OCDE',color:'var(--s2)',data:[[2003,500],[2006,497],[2009,496],[2012,494],[2015,490],[2018,489],[2022,472]]}],fmt:f0,xTicks:5});
+
+  tiles('#t-serv',[['≈ 30 %','de la population vit dans une zone sous-dotée en médecins généralistes (APL < 2,5)','Drees — ordre de grandeur'],
+    ['> 130 %','densité carcérale moyenne (détenus / places opérationnelles)','Ministère de la Justice — ordre de grandeur']]);
+
+  el=card('#c-house','Permis de construire &amp; mises en chantier','milliers de logements par an (France entière)','SDES / Sitadel (valeurs de référence)',false);
+  legend(el,[['Permis','var(--s1)'],['Mises en chantier','var(--s2)']]);
+  line(el,{series:[{name:'Permis',color:'var(--s1)',data:[[2017,470],[2018,460],[2019,440],[2020,380],[2021,470],[2022,440],[2023,380],[2024,330]]},{name:'Mises en chantier',color:'var(--s2)',bold:true,data:[[2017,420],[2018,410],[2019,395],[2020,350],[2021,390],[2022,380],[2023,330],[2024,280]]}],fmt:f0,unit:' k',yMin:200,xTicks:7});
+  tiles('#t-house',[['≈ 2,4 M','personnes bénéficiaires de l\'aide alimentaire','Drees / Banques alimentaires — ordre de grandeur'],['≈ 280 k','logements commencés en 2024, vs ≈ 420 k en 2017','SDES — ordre de grandeur']]);
+  $('#stamp').textContent='Mis à jour : '+new Date().toLocaleString('fr-FR')+' · séries Eurostat jusqu\'en '+yD;
+}
+function groupBars(el,rows){
+  const W=560,rh=62,H=rows.length*rh+6,m={l:96,r:50};const mx=Math.max(...rows.flatMap(r=>[r.a,r.b]))*1.1;const X=v=>m.l+v/mx*(W-m.l-m.r);let g='';
+  rows.forEach((r,i)=>{const y=i*rh+4;const hl=r.k==='FR';
+   g+=`<text class="lab" x="${m.l-8}" y="${y+rh/2+2}" text-anchor="end" style="${hl?'fill:var(--ink);font-weight:700':''}">${r.n}</text>`;
+   [[r.a,'var(--s1)',0],[r.b,'var(--s3)',1]].forEach(([v,c,j])=>{const yy=y+4+j*25;g+=`<path d="M${m.l},${yy}H${X(v)-4}a4,4 0 0 1 4,4v14a4,4 0 0 1 -4,4H${m.l}Z" fill="${c}" ${hl?'':'opacity=".7"'} data-n="${r.n}" data-v="${v}" data-t="${j?'Recettes':'Dépenses'}"/><text x="${X(v)+6}" y="${yy+16}" style="fill:var(--ink)">${f1(v)}</text>`})});
+  const box=el.querySelector('.plot');box.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+  box.querySelectorAll('path[data-v]').forEach(p=>{p.addEventListener('mousemove',ev=>{tt.innerHTML=`<b>${p.dataset.n}</b><div><span>${p.dataset.t}</span><span>${f1(+p.dataset.v)} %</span></div>`;tt.style.display='block';tt.style.left=ev.clientX+14+'px';tt.style.top=ev.clientY+14+'px'});p.addEventListener('mouseleave',()=>tt.style.display='none')});
+}
+function tiles(id,arr){$(id).innerHTML=arr.map(([v,l,s])=>`<div class="tile"><div class="v">${v}</div><div class="l">${l}</div><div class="src">${s} <span class="tag ref">réf.</span></div></div>`).join('')}
+
+render(DATA);
+$('#theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'};
+
+$('#refresh').onclick=async()=>{
+  const b=$('#refresh');b.textContent='Chargement…';
+  try{
+    const E='https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/';
+    const get=async(ds,q)=>{const j=await (await fetch(E+ds+'?'+q+'&format=JSON&lang=EN')).json();const ids=j.id,size=j.size,gi=ids.indexOf('geo'),ti=ids.indexOf('time');
+      const gk=Object.entries(j.dimension.geo.category.index).sort((a,b)=>a[1]-b[1]).map(x=>x[0]),tk=Object.entries(j.dimension.time.category.index).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);
+      const st=[];let s=1;for(let i=ids.length-1;i>=0;i--){st[i]=s;s*=size[i]}const o={};
+      for(const [k,v] of Object.entries(j.value)){const n=+k;((o[gk[Math.floor(n/st[gi])%size[gi]]])??={})[tk[Math.floor(n/st[ti])%size[ti]]]=v}return o};
+    const G='geo=FR&geo=DE&geo=IT&geo=EA20&geo=EU27_2020';
+    const [debt,def]=await Promise.all([get('gov_10dd_edpt1',G+'&sector=S13&unit=PC_GDP&na_item=GD&sinceTimePeriod=2000'),get('gov_10dd_edpt1',G+'&sector=S13&unit=PC_GDP&na_item=B9&sinceTimePeriod=2000')]);
+    const txt=await (await fetch('https://data-api.ecb.europa.eu/service/data/IRS/M.FR.L.L40.CI.0000.EUR.N.Z?format=csvdata&startPeriod=2005-01')).text();
+    const txt2=await (await fetch('https://data-api.ecb.europa.eu/service/data/IRS/M.DE.L.L40.CI.0000.EUR.N.Z?format=csvdata&startPeriod=2005-01')).text();
+    const parse=t=>{const L=t.trim().split('\n'),h=L[0].split(','),a=h.indexOf('TIME_PERIOD'),c=h.indexOf('OBS_VALUE'),o={};L.slice(1).forEach(l=>{const f=l.split(',');o[f[a]]=+f[c]});return o};
+    Object.assign(DATA,{debt,def,yFR:parse(txt),yDE:parse(txt2)});render(DATA);b.textContent='✓ Actualisé';
+  }catch(e){b.textContent='Échec : '+e.message}
+};
+</script>
+</body>
+</html>

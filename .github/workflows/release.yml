@@ -1,0 +1,29 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - run: npm run fetch || echo "::warning::snapshot utilisé"
+      - run: npm run build
+      - name: Archive
+        run: |
+          cp dist/index.html "france-alert-dashboard-${GITHUB_REF_NAME}.html"
+          (cd dist && zip -r "../france-alert-dashboard-${GITHUB_REF_NAME}.zip" .)
+      - name: Publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" --generate-notes --verify-tag \
+            "france-alert-dashboard-${GITHUB_REF_NAME}.html" \
+            "france-alert-dashboard-${GITHUB_REF_NAME}.zip"

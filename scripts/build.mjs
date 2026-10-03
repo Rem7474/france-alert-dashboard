@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const dataPath = process.argv[2] || 'data/live.json';
+const path = fs.existsSync(dataPath) ? dataPath : 'data/snapshot.json';
+const data = fs.readFileSync(path, 'utf8');
+JSON.parse(data);
+const html = fs.readFileSync('src/template.html', 'utf8').replace('__DATA__', () => data);
+fs.mkdirSync('dist', { recursive: true });
+fs.writeFileSync('dist/index.html', html);
+fs.writeFileSync('dist/.nojekyll', '');
+console.log(`dist/index.html construit depuis ${path} (${(html.length / 1024).toFixed(0)} Ko)`);
