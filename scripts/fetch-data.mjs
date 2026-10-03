@@ -1,7 +1,8 @@
 import fs from 'fs';
+async function fx(url,tries=4){let err;for(let i=0;i<tries;i++){try{const r=await fetch(url,{signal:AbortSignal.timeout(30000)});if(r.ok)return r;err=new Error(url+' '+r.status)}catch(e){err=e}await new Promise(r=>setTimeout(r,1500*2**i))}throw err}
 const E='https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/';
 async function js(ds,q){
-  const r=await fetch(E+ds+'?'+q+'&format=JSON&lang=EN'); if(!r.ok) throw new Error(ds+' '+r.status);
+  const r=await fx(E+ds+'?'+q+'&format=JSON&lang=EN');
   const j=await r.json(); const ids=j.id,size=j.size;
   const out={}; // key geo -> {time:val}
   const gi=ids.indexOf('geo'),ti=ids.indexOf('time');
@@ -30,12 +31,17 @@ const jobs={
  emp5564:['lfsi_emp_a','geo=FR&geo=DE&geo=SE&geo=IT&geo=EU27_2020&age=Y55-64&sex=T&unit=PC_POP&indic_em=EMP_LFS&sinceTimePeriod=2005'],
 };
 for(const [k,[ds,q]] of Object.entries(jobs)){try{R[k]=await js(ds,q);console.log(k,Object.keys(R[k]).map(g=>g+':'+Object.keys(R[k][g]).at(-1)+'='+R[k][g][Object.keys(R[k][g]).at(-1)]).join(' '));}catch(e){console.log('FAIL',k,e.message)}}
-async function ecb(c){const t=await (await fetch(`https://data-api.ecb.europa.eu/service/data/IRS/M.${c}.L.L40.CI.0000.EUR.N.Z?format=csvdata&startPeriod=2005-01`)).text();
+async function ecb(c){const t=await (await fx(`https://data-api.ecb.europa.eu/service/data/IRS/M.${c}.L.L40.CI.0000.EUR.N.Z?format=csvdata&startPeriod=2005-01`)).text();
  const L=t.trim().split('\n');const h=L[0].split(',');const ti=h.indexOf('TIME_PERIOD'),vi=h.indexOf('OBS_VALUE');const o={};
  for(const l of L.slice(1)){const f=l.split(',');o[f[ti]]=+f[vi];}return o;}
 R.yFR=await ecb('FR');R.yDE=await ecb('DE');
+async function ecbDaily(code){const t=await (await fx(`https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.${code}.SV_C_YM.SR_10Y?format=csvdata&startPeriod=2015-01-01`)).text();
+ const L=t.trim().split('\n');const h=L[0].split(',');const ti=h.indexOf('TIME_PERIOD'),vi=h.indexOf('OBS_VALUE');const o={};
+ for(const l of L.slice(1)){const f=l.split(',');o[f[ti]]=Math.round(+f[vi]*10000)/10000;}return o;}
+R.daily={aaa:await ecbDaily('G_N_A'),all:await ecbDaily('G_N_C')};
+console.log('ECB daily',Object.keys(R.daily.all).length,Object.keys(R.daily.all).at(-1));
 console.log('ECB',Object.keys(R.yFR).at(-1),R.yFR[Object.keys(R.yFR).at(-1)],R.yDE[Object.keys(R.yDE).at(-1)]);
 const out=process.argv[2]||'data/snapshot.json';
-const required=['debt','def','interest','yFR','yDE','fert'];
+const required=['debt','def','interest','yFR','yDE','fert','gdp','exports','imports','manuf','vaTot','youth','emp5564','daily'];
 for(const k of required) if(!R[k]||!Object.keys(R[k]).length) throw new Error('Données manquantes : '+k);
 fs.writeFileSync(out,JSON.stringify(R));console.log('écrit',out);

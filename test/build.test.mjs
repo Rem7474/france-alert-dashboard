@@ -28,3 +28,16 @@ test('le build produit une page autonome sans placeholder', () => {
   const script = html.match(/<script>([\s\S]*)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(script));
 });
+
+test("l'indice composite reste dans [0, 100] et couvre mensuel + quotidien", () => {
+  const code = fs.readFileSync('src/index-calc.js', 'utf8');
+  const buildIndex = new Function(code + '; return buildIndex')();
+  const r = buildIndex(snap);
+  assert.ok(r.months.length > 200 && r.days.length >= 365);
+  for (const d of [...r.months, ...r.days]) {
+    assert.ok(d.idx >= 0 && d.idx <= 100, 'indice hors bornes');
+    for (const v of Object.values(d.p)) assert.ok(v >= 0 && v <= 100);
+  }
+  const heavy = buildIndex(snap, { fin: 5, eco: 0, dem: 0, mkt: 0 });
+  assert.ok(Math.abs(heavy.months.at(-1).idx - heavy.months.at(-1).p.fin) < 1e-9, 'pondération par pilier');
+});

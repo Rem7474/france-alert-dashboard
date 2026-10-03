@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "17 5 * * 1"   # chaque lundi : rafraîchit les données Eurostat/BCE
+    - cron: "17 5 * * *"   # chaque jour : rafraîchit les données Eurostat/BCE
   workflow_dispatch:
 permissions:
   contents: read

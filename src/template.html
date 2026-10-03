@@ -6,7 +6,7 @@
 <title>France — Signaux d'alerte structurels</title>
 <style>
 :root{--page:#f4f4f1;--surf:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#6f6d67;--grid:#e1e0d9;--axis:#c3c2b7;--ring:rgba(11,11,11,.10);
---s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--crit:#d03b3b;--good:#0ca30c;--warn:#fab219;--glow:rgba(208,59,59,.10)}
+--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--crit:#d03b3b;--good:#0ca30c;--warn:#fab219;--glow:rgba(208,59,59,.10);--st-good:#0ca30c;--st-warn:#fab219;--st-serious:#ec835a;--st-crit:#d03b3b}
 :root[data-theme=dark]{--page:#0d0d0d;--surf:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--axis:#383835;--ring:rgba(255,255,255,.10);
 --s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--crit:#e66767;--glow:rgba(230,103,103,.14)}
 *{box-sizing:border-box}
@@ -50,6 +50,25 @@ svg .lab{fill:var(--ink2);font-size:12px}
 table{border-collapse:collapse;width:100%;font-size:12px}td,th{padding:3px 6px;text-align:right;border-bottom:1px solid var(--grid)}th:first-child,td:first-child{text-align:left}
 details{margin-top:6px;font-size:12px;color:var(--ink2)} summary{cursor:pointer}
 footer{padding:30px 6vw;color:var(--muted);font-size:12px;border-top:1px solid var(--grid)}
+.hero{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:14px;margin:8px 0 14px}
+.hero .gauge{display:flex;flex-direction:column}.hero .gauge,.hero .hchart,.pillars,.method{background:var(--surf);border:1px solid var(--ring);border-radius:14px;padding:18px 20px}
+.gauge .l{font-size:12px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em}
+.gauge svg text.big{fill:var(--ink);font-size:54px;font-weight:750;text-anchor:middle}
+.gauge .zone{font-weight:700;margin-top:-4px;text-align:center}
+.deltas{margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.deltas div{border-top:1px solid var(--grid);padding-top:8px;font-size:12px;color:var(--ink2)}
+.deltas b{display:block;font-size:18px;color:var(--ink)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--surf);border-color:var(--ink)}
+.hchart h3{margin:0 0 2px;font-size:16px}.hchart .s{color:var(--muted);font-size:12px;margin-bottom:8px}
+.pillars,.method{margin-bottom:14px}
+.prow{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;margin:8px 0;font-size:13px}
+.prow .trk{height:10px;background:var(--grid);border-radius:5px;position:relative}.prow .fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.prow .n{text-align:right;color:var(--ink2)}.prow .n b{color:var(--ink)}
+.method label{display:inline-flex;gap:6px;align-items:center;margin:4px 14px 4px 0}
+.method input{width:56px;background:var(--page);color:var(--ink);border:1px solid var(--axis);border-radius:6px;padding:3px 6px}
+.method ul{margin:6px 0;padding-left:18px;color:var(--ink2);font-size:13px}
+@media(max-width:900px){.hero{grid-template-columns:1fr}}
 @media(max-width:520px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -61,6 +80,9 @@ footer{padding:30px 6vw;color:var(--muted);font-size:12px;border-top:1px solid v
   <div class="bar"><span id="stamp"></span><button id="refresh">↻ Actualiser en direct (Eurostat + BCE)</button><button id="theme">◐ Thème</button></div>
 </header>
 <main>
+<section class="hero" id="hero"></section>
+<section class="pillars" id="pillars"></section>
+<details class="method" id="method"></details>
 <section class="kpis" id="kpis"></section>
 
 <h2><span>1</span> Finances publiques &amp; risque de dette</h2>
@@ -123,7 +145,7 @@ function card(id,title,sub,src,live){
 function legend(el,items){el.querySelector('.leg').innerHTML=items.map(([n,c])=>`<span><i style="background:${c}"></i>${n}</span>`).join('')}
 function table(el,cols,rows){el.insertAdjacentHTML('beforeend',`<details><summary>Voir le tableau</summary><table><tr><th></th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>${rows.map(r=>`<tr><td>${r[0]}</td>${r.slice(1).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</table></details>`)}
 
-function line(el,{series,fmt=f1,unit='',ref,yMin,yMax,xTicks=6,h=240,area=false}){
+function line(el,{series,fmt=f1,unit='',ref,yMin,yMax,xTicks=6,h=240,area=false,xfmt,xTol=1.2}){
   const W=560,H=h,m={l:44,r:56,t:10,b:22};
   const all=series.flatMap(s=>s.data);let x0=Math.min(...all.map(d=>d[0])),x1=Math.max(...all.map(d=>d[0]));
   let lo=Math.min(...all.map(d=>d[1]),ref?ref.v:Infinity),hi=Math.max(...all.map(d=>d[1]),ref?ref.v:-Infinity);
@@ -132,8 +154,8 @@ function line(el,{series,fmt=f1,unit='',ref,yMin,yMax,xTicks=6,h=240,area=false}
   const X=x=>m.l+(x-x0)/(x1-x0||1)*(W-m.l-m.r),Y=y=>H-m.b-(y-lo)/(hi-lo)*(H-m.t-m.b);
   let g='';const step=niceStep((hi-lo)/4);
   for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step){g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${fmt(v)}</text>`}
-  const xs=[];for(let i=0;i<=xTicks;i++)xs.push(Math.floor(x0+(x1-x0)*i/xTicks));
-  xs.forEach(x=>g+=`<text x="${X(x)}" y="${H-4}" text-anchor="middle">${x}</text>`);
+  const xs=[];for(let i=0;i<=xTicks;i++)xs.push(xfmt?x0+(x1-x0)*i/xTicks:Math.floor(x0+(x1-x0)*i/xTicks));
+  xs.forEach(x=>g+=`<text x="${X(x)}" y="${H-4}" text-anchor="middle">${xfmt?xfmt(x):x}</text>`);
   if(lo<0&&hi>0)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--axis)"/>`;
   if(ref)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(ref.v)}" y2="${Y(ref.v)}" stroke="var(--crit)" stroke-dasharray="5 4" stroke-width="1.5"/><text class="lab" x="${m.l+4}" y="${Y(ref.v)-5}" style="fill:var(--crit)">${ref.label}</text>`;
   series.forEach((s,i)=>{
@@ -149,8 +171,8 @@ function line(el,{series,fmt=f1,unit='',ref,yMin,yMax,xTicks=6,h=240,area=false}
     const r=svg.getBoundingClientRect(),px=(ev.clientX-r.left)/r.width*W;const xv=x0+(px-m.l)/(W-m.l-m.r)*(x1-x0);
     let best=null;const rows=[];series.forEach(s=>{const p=s.data.reduce((a,b)=>Math.abs(b[0]-xv)<Math.abs(a[0]-xv)?b:a);if(!best||Math.abs(p[0]-xv)<Math.abs(best-xv))best=p[0];rows.push([s,p])});
     xh.setAttribute('x1',X(best));xh.setAttribute('x2',X(best));xh.style.display='';
-    const lab=best%1?`${Math.floor(best)}-${String(Math.round((best%1)*12)+1).padStart(2,'0')}`:Math.round(best);
-    tt.innerHTML=`<b>${lab}</b>`+rows.filter(([s,p])=>Math.abs(p[0]-best)<1.2).map(([s,p])=>`<div><span><i style="background:${s.color}"></i>${s.name}</span><span>${fmt(p[1])}${unit}</span></div>`).join('');
+    const lab=xfmt?xfmt(best,true):best%1?`${Math.floor(best)}-${String(Math.round((best%1)*12)+1).padStart(2,'0')}`:Math.round(best);
+    tt.innerHTML=`<b>${lab}</b>`+rows.filter(([s,p])=>Math.abs(p[0]-best)<xTol).map(([s,p])=>`<div><span><i style="background:${s.color}"></i>${s.name}</span><span>${fmt(p[1])}${unit}</span></div>`).join('');
     tt.style.display='block';tt.style.left=Math.min(ev.clientX+14,innerWidth-190)+'px';tt.style.top=ev.clientY+14+'px';});
   svg.querySelector('.hit').addEventListener('mouseleave',()=>{tt.style.display='none';xh.style.display='none'});
 }
@@ -261,7 +283,51 @@ function groupBars(el,rows){
 }
 function tiles(id,arr){$(id).innerHTML=arr.map(([v,l,s])=>`<div class="tile"><div class="v">${v}</div><div class="l">${l}</div><div class="src">${s} <span class="tag ref">réf.</span></div></div>`).join('')}
 
-render(DATA);
+/*__INDEX_CALC__*/
+const state={tab:'90j',w:{fin:1,eco:1,dem:1,mkt:1}};
+const TABS=[['30j','30 j',30],['90j','90 j',90],['1an','1 an',365],['5ans','5 ans',60],['tout','Depuis 2005',0]];
+const MONTHS=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+const dFmt=(t,long)=>{const d=new Date(t);return long?`${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`:`${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`};
+const mFmt=(t,long)=>{const d=new Date(t);return long?`${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`:(d.getUTCMonth()===0||!long?String(d.getUTCFullYear()):'')};
+const zone=v=>v<30?['Contenue','var(--st-good)','✓']:v<50?['Sous surveillance','var(--st-warn)','◔']:v<70?['Élevée','var(--st-serious)','▲']:['Critique','var(--st-crit)','⚠'];
+const sgn=v=>(v>0?'+':v<0?'−':'')+f1(Math.abs(v));
+function arc(cx,cy,r,a0,a1){const p=a=>[cx+r*Math.cos(a),cy-r*Math.sin(a)];const [x0,y0]=p(a0),[x1,y1]=p(a1);return `M${x0},${y0}A${r},${r} 0 ${a0-a1>Math.PI?1:0} 1 ${x1},${y1}`}
+function renderIndex(D){
+  const I=buildIndex(D,state.w);const tab=TABS.find(t=>t[0]===state.tab);
+  const daily=['30j','90j','1an'].includes(state.tab);
+  const src=daily?I.days.slice(-tab[2]):(state.tab==='5ans'?I.months.slice(-60):I.months);
+  const cur=src.at(-1);const z=zone(cur.idx);
+  const at=(arr,n)=>arr[Math.max(0,arr.length-1-n)];
+  const dl=(arr,n)=>arr.at(-1).idx-at(arr,n).idx;
+  const d30=dl(I.days,30),d90=dl(I.days,90),d1y=dl(I.months,12);
+  const col=v=>v>0.05?'var(--st-crit)':v<-0.05?'var(--st-good)':'var(--ink2)';
+  const a0=Math.PI,a1=Math.PI-Math.PI*cur.idx/100;
+  $('#hero').innerHTML=`<div class="gauge"><div class="l">Indice de vulnérabilité France</div>
+   <svg viewBox="0 0 200 128" role="img" aria-label="Indice ${f0(cur.idx)} sur 100, ${z[0]}"><path d="${arc(100,104,80,Math.PI,0)}" fill="none" stroke="var(--grid)" stroke-width="14" stroke-linecap="round"/>
+   <path d="${arc(100,104,80,a0,Math.max(a1,0.001)+0.0001)}" fill="none" stroke="${z[1]}" stroke-width="14" stroke-linecap="round"/>
+   <text class="big" x="100" y="100">${f0(cur.idx)}</text><text x="100" y="122" text-anchor="middle">sur 100</text></svg>
+   <div class="zone" style="color:${z[1]}">${z[2]} ${z[0]}</div><p style="color:var(--muted);font-size:12px;text-align:center;margin:6px 0 0">0 = meilleur niveau observé depuis 2005, 100 = pire niveau</p>
+   <div class="deltas"><div><b style="color:${col(d30)}">${sgn(d30)}</b>30 jours</div><div><b style="color:${col(d90)}">${sgn(d90)}</b>90 jours</div><div><b style="color:${col(d1y)}">${sgn(d1y)}</b>1 an</div></div></div>
+   <div class="hchart"><h3>Évolution de l'indice</h3><div class="s" id="hs"></div>
+   <div class="tabs">${TABS.map(t=>`<button data-t="${t[0]}" aria-pressed="${t[0]===state.tab}">${t[1]}</button>`).join('')}</div><div class="plot"></div></div>`;
+  $('#hs').textContent=daily?`Quotidien · pilier marché = tension souveraine zone euro (BCE) · valeur au ${dFmt(cur.t,true)}. Les 3 autres piliers sont annuels (constants sur la fenêtre).`:`Mensuel · pilier marché = spread OAT/Bund · piliers annuels maintenus dans l'année · valeur de ${mFmt(cur.t,true)}.`;
+  document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{state.tab=b.dataset.t;renderIndex(D)});
+  const lo=Math.min(...src.map(d=>d.idx)),hi=Math.max(...src.map(d=>d.idx));
+  line($('#hero .hchart'),{series:[{name:'Indice',color:'var(--s1)',bold:true,data:src.map(d=>[d.t,d.idx])}],fmt:f0,unit:' / 100',area:false,h:250,
+    yMin:Math.max(0,Math.floor((lo-5)/5)*5),yMax:Math.min(100,Math.ceil((hi+5)/5)*5),xTicks:state.tab==='30j'?5:6,
+    xfmt:daily?dFmt:(x,l)=>mFmt(x,l),xTol:daily?2*864e5:45*864e5});
+  $('#pillars').innerHTML=`<h3 style="margin:0 0 4px">Contribution des piliers</h3><div class="s" style="color:var(--muted);font-size:12px;margin-bottom:6px">Score 0-100 de chaque pilier (100 = pire niveau depuis 2005) · variation sur 1 an</div>`+
+    PILLARS.map(([id,n])=>{const ref=daily?I.days.at(-365):I.months.at(-13),v=cur.p[id],d=v-ref.p[id];return `<div class="prow"><span>${n}</span><div class="trk"><div class="fill" style="width:${v}%;background:${zone(v)[1]}"></div></div><span class="n"><b>${f0(v)}</b> <span style="color:${col(d)}">${sgn(d)}</span></span></div>`}).join('');
+  $('#method').innerHTML=`<summary>Méthode &amp; pondération</summary><p style="color:var(--ink2);font-size:13px">Chaque indicateur est converti en score 0-100 par rapport à sa propre plage observée depuis 2005 (0 = meilleur niveau, 100 = pire). Les scores sont moyennés par pilier, puis les piliers sont pondérés.</p>
+   <ul><li><b>Finances publiques</b> : dette (% PIB), déficit (% PIB), intérêts (% PIB)</li><li><b>Économie réelle</b> : solde extérieur biens &amp; services (% PIB), part de l'industrie manufacturière</li><li><b>Démographie &amp; emploi</b> : fécondité, chômage des 15-24 ans, emploi des 55-64 ans</li><li><b>Marché de la dette</b> : spread OAT/Bund 10 ans (mensuel) ; tension souveraine zone euro, courbe tous émetteurs moins courbe AAA (quotidien)</li></ul>
+   <div>${PILLARS.map(([id,n])=>`<label>${n}<input type="number" min="0" max="5" step="0.5" value="${state.w[id]}" data-w="${id}"></label>`).join('')}<button id="wreset">Réinitialiser</button></div>
+   <p style="color:var(--muted);font-size:12px">Indicateur de suivi relatif, pas une prévision. Les séries annuelles ne bougent qu'à chaque publication Eurostat : seul le pilier marché varie d'un jour à l'autre.</p>`;
+  document.querySelectorAll('#method input').forEach(i=>i.onchange=()=>{state.w[i.dataset.w]=Math.max(0,+i.value||0);if(Object.values(state.w).every(v=>!v))state.w={fin:1,eco:1,dem:1,mkt:1};$('#method').open=true;renderIndex(D)});
+  $('#wreset').onclick=()=>{state.w={fin:1,eco:1,dem:1,mkt:1};renderIndex(D)};
+}
+
+function renderAll(){render(DATA);renderIndex(DATA)}
+renderAll();
 $('#theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'};
 
 $('#refresh').onclick=async()=>{
@@ -277,7 +343,9 @@ $('#refresh').onclick=async()=>{
     const txt=await (await fetch('https://data-api.ecb.europa.eu/service/data/IRS/M.FR.L.L40.CI.0000.EUR.N.Z?format=csvdata&startPeriod=2005-01')).text();
     const txt2=await (await fetch('https://data-api.ecb.europa.eu/service/data/IRS/M.DE.L.L40.CI.0000.EUR.N.Z?format=csvdata&startPeriod=2005-01')).text();
     const parse=t=>{const L=t.trim().split('\n'),h=L[0].split(','),a=h.indexOf('TIME_PERIOD'),c=h.indexOf('OBS_VALUE'),o={};L.slice(1).forEach(l=>{const f=l.split(',');o[f[a]]=+f[c]});return o};
-    Object.assign(DATA,{debt,def,yFR:parse(txt),yDE:parse(txt2)});render(DATA);b.textContent='✓ Actualisé';
+    const dly=async c=>parse(await (await fetch(`https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.${c}.SV_C_YM.SR_10Y?format=csvdata&startPeriod=2015-01-01`)).text());
+    const [aaa,all]=await Promise.all([dly('G_N_A'),dly('G_N_C')]);
+    Object.assign(DATA,{debt,def,yFR:parse(txt),yDE:parse(txt2),daily:{aaa,all}});renderAll();b.textContent='✓ Actualisé';
   }catch(e){b.textContent='Échec : '+e.message}
 };
 </script>
